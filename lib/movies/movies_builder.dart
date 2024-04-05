@@ -112,6 +112,14 @@ class _MoviesBuilderState extends State<MoviesBuilder> {
                   width: 100,
                   fit: BoxFit.cover,
                 ),
+                trailing: IconButton(
+                  icon: Icon(Icons.delete),
+                  onPressed: () {
+                    setState(() {
+                      selectedMovies.removeAt(index);
+                    });
+                  },
+                ),
               );
             },
           ),
