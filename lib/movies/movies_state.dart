@@ -15,3 +15,11 @@ class MoviesLoaded extends MoviesState {
   @override
   List<Object?> get props => [movies, selectedMovies];
 }
+
+class MoviesCart extends MoviesState {
+  final List<dynamic> cartOMovies;
+  MoviesCart({required this.cartOMovies});
+
+  @override
+  List<Object> get props => [cartOMovies];
+}

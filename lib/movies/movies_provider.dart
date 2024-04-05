@@ -1,6 +1,3 @@
-
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movies/movies/movies_builder.dart';
@@ -12,15 +9,10 @@ class MoviesProvider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => MoviesCubit()..getMovies(),
+      create: (_) => MoviesCubit(),
       child: Scaffold(
         body: MoviesBuilder(),
       ),
     );
   }
 }
-
-
-
-
-

@@ -11,6 +11,8 @@ class MoviesBuilder extends StatefulWidget {
 }
 
 class _MoviesBuilderState extends State<MoviesBuilder> {
+  List<dynamic> selectedMovies = [];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,6 +27,7 @@ class _MoviesBuilderState extends State<MoviesBuilder> {
             );
           }
           if (state is MoviesLoaded) {
+            selectedMovies = state.selectedMovies; // Update selectedMovies
             return Column(
               children: [
                 Expanded(
@@ -43,27 +46,22 @@ class _MoviesBuilderState extends State<MoviesBuilder> {
               child: Text('Failed to fetch movies'),
             );
           }
+          if (state is MoviesCart) {
+            return Container(
+              child: const Text("datos"),
+            );
+          }
           return Container();
         },
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          setState(() {});
+          context.read<MoviesCubit>().moviesToCart(selectedMovies);
         },
-        child: Icon(Icons.clear),
+        label: Text("añadir a carrito"),
+        icon: Icon(Icons.add),
       ),
     );
-  }
-
-  ListTile _buildListTile(dynamic movie) {
-    return ListTile(
-        title: Text(movie['title']),
-        subtitle: Text(movie['overview']),
-        leading: Image.network(
-          'https://image.tmdb.org/t/p/w500${movie['poster_path']}',
-          width: 100,
-          fit: BoxFit.cover,
-        ));
   }
 
   Widget _buildMoviesListView(

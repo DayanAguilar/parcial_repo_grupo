@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movies/movies/movies_state.dart';
 
 class MoviesCubit extends Cubit<MoviesState> {
-  MoviesCubit() : super(MoviesLoading());
+  MoviesCubit() : super(MoviesLoading()) {
+    getMovies();
+  }
   void getMovies() async {
     try {
       final response = await Dio().get(
@@ -15,5 +17,11 @@ class MoviesCubit extends Cubit<MoviesState> {
     }
   }
 
-  void selectMovies() {}
+  void moviesToCart(selectedMovies) {
+    if (selectedMovies.isNotEmpty) {
+      emit(MoviesCart(cartOMovies: selectedMovies));
+    } else {
+      getMovies();
+    }
+  }
 }
