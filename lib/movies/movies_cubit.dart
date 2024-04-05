@@ -14,4 +14,6 @@ class MoviesCubit extends Cubit<MoviesState> {
       print('Error fetching popular movies: $e');
     }
   }
+
+  void selectMovies() {}
 }
