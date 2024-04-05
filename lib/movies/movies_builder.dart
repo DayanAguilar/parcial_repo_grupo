@@ -11,8 +11,6 @@ class MoviesBuilder extends StatefulWidget {
 }
 
 class _MoviesBuilderState extends State<MoviesBuilder> {
-  List<String> selectedMovies = [];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,11 +28,12 @@ class _MoviesBuilderState extends State<MoviesBuilder> {
             return Column(
               children: [
                 Expanded(
-                  child: _buildMoviesListView(state.movies),
+                  child:
+                      _buildMoviesListView(state.movies, state.selectedMovies),
                 ),
-                if (selectedMovies.isNotEmpty)
+                if (state.selectedMovies.isNotEmpty)
                   Expanded(
-                    child: _buildSelectedMoviesListView(),
+                    child: _buildSelectedMoviesListView(state.selectedMovies),
                   ),
               ],
             );
@@ -49,16 +48,26 @@ class _MoviesBuilderState extends State<MoviesBuilder> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          setState(() {
-            selectedMovies.clear();
-          });
+          setState(() {});
         },
         child: Icon(Icons.clear),
       ),
     );
   }
 
-  Widget _buildMoviesListView(List<dynamic> movies) {
+  ListTile _buildListTile(dynamic movie) {
+    return ListTile(
+        title: Text(movie['title']),
+        subtitle: Text(movie['overview']),
+        leading: Image.network(
+          'https://image.tmdb.org/t/p/w500${movie['poster_path']}',
+          width: 100,
+          fit: BoxFit.cover,
+        ));
+  }
+
+  Widget _buildMoviesListView(
+      List<dynamic> movies, List<dynamic> selectedMovies) {
     return ListView.builder(
       itemCount: movies.length,
       itemBuilder: (context, index) {
@@ -73,7 +82,11 @@ class _MoviesBuilderState extends State<MoviesBuilder> {
           ),
           onTap: () {
             setState(() {
-              selectedMovies.add(movie['title'] + ': ' + movie['overview']);
+              selectedMovies.add({
+                'title': movie['title'],
+                'overview': movie['overview'],
+                'poster_path': movie['poster_path'],
+              });
             });
           },
         );
@@ -81,14 +94,31 @@ class _MoviesBuilderState extends State<MoviesBuilder> {
     );
   }
 
-  Widget _buildSelectedMoviesListView() {
-    return ListView.builder(
-      itemCount: selectedMovies.length,
-      itemBuilder: (context, index) {
-        return ListTile(
-          title: Text(selectedMovies[index]),
-        );
-      },
+  Widget _buildSelectedMoviesListView(List<dynamic> selectedMovies) {
+    return Column(
+      children: [
+        Container(
+          child: const Text("Peliculas seleccionadas"),
+          padding: EdgeInsets.all(16.0),
+        ),
+        Expanded(
+          child: ListView.builder(
+            itemCount: selectedMovies.length,
+            itemBuilder: (context, index) {
+              final selectedMovie = selectedMovies[index];
+              return ListTile(
+                title: Text(selectedMovie['title']),
+                subtitle: Text(selectedMovie['overview']),
+                leading: Image.network(
+                  'https://image.tmdb.org/t/p/w500${selectedMovie['poster_path']}',
+                  width: 100,
+                  fit: BoxFit.cover,
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }

@@ -8,7 +8,7 @@ class MoviesCubit extends Cubit<MoviesState> {
     try {
       final response = await Dio().get(
           'https://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=fa3e844ce31744388e07fa47c7c5d8c3');
-      emit(MoviesLoaded(movies: response.data['results']));
+      emit(MoviesLoaded(movies: response.data['results'], selectedMovies: []));
     } catch (e) {
       emit(MoviesFailed());
       print('Error fetching popular movies: $e');
