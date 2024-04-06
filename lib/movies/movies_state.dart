@@ -10,31 +10,9 @@ class MoviesState {
   }
 }
 
-class MoviesLoading extends MoviesState {
-  MoviesLoading();
+class MoviesLoading extends MoviesState {}
 
-  @override
-  MoviesState copyWith({
-    List<dynamic>? movies,
-    List<dynamic>? selectedMovies,
-    List<dynamic>? cartOMovies,
-  }) {
-    return MoviesLoading();
-  }
-}
-
-class MoviesFailed extends MoviesState {
-  MoviesFailed();
-
-  @override
-  MoviesState copyWith({
-    List<dynamic>? movies,
-    List<dynamic>? selectedMovies,
-    List<dynamic>? cartOMovies,
-  }) {
-    return MoviesFailed();
-  }
-}
+class MoviesFailed extends MoviesState {}
 
 class MoviesLoaded extends MoviesState {
   final List<dynamic> movies;
@@ -68,4 +46,12 @@ class MoviesCart extends MoviesState {
       cartOMovies: cartOMovies ?? this.cartOMovies,
     );
   }
+}
+
+class MoviesConfirmation extends MoviesState {
+  final String price;
+  MoviesConfirmation({required this.price});
+
+  @override
+  List<Object> get props => [price];
 }

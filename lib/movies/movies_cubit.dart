@@ -21,7 +21,8 @@ class MoviesCubit extends Cubit<MoviesState> {
   void toggleSelectedMovie(dynamic movie) {
     final currentState = state;
     if (currentState is MoviesLoaded) {
-      List<dynamic> updatedSelectedMovies = List.from(currentState.selectedMovies);
+      List<dynamic> updatedSelectedMovies =
+          List.from(currentState.selectedMovies);
       if (updatedSelectedMovies.contains(movie)) {
         updatedSelectedMovies.remove(movie);
       } else {
@@ -31,27 +32,44 @@ class MoviesCubit extends Cubit<MoviesState> {
     }
   }
 
-   void moviesToCart() {
+  void moviesToCart() {
     final currentState = state;
-    if (currentState is MoviesLoaded && currentState.selectedMovies.isNotEmpty) {
+    if (currentState is MoviesLoaded &&
+        currentState.selectedMovies.isNotEmpty) {
       emit(MoviesCart(cartOMovies: currentState.selectedMovies));
     }
   }
 
   void updateSelectedMovieTickets(dynamic movie, int tickets) {
     final currentState = state;
-    if (currentState is MoviesLoaded) {
-      final updatedSelectedMovies = currentState.selectedMovies.map((selectedMovie) {
+    if (currentState is MoviesCart) {
+      final updatedSelectedMovies =
+          currentState.cartOMovies.map((selectedMovie) {
         if (selectedMovie['title'] == movie['title']) {
           return {
             ...selectedMovie,
             'tickets': tickets,
+            'price': tickets * 20,
           };
         }
         return selectedMovie;
       }).toList();
-      emit(currentState.copyWith(selectedMovies: updatedSelectedMovies));
+      emit(currentState.copyWith(cartOMovies: updatedSelectedMovies));
     }
   }
 
+  void purchaseConfirmation() {
+    final currentState = state;
+    if (currentState is MoviesCart) {
+      final totalAmount = currentState.cartOMovies.fold<num>(
+        0,
+        (previousValue, movie) => previousValue + (movie['price'] ?? 0),
+      );
+      try {
+        emit(MoviesConfirmation(price: totalAmount.toString()));
+      } catch (e) {
+        print('Error confirming purchase: $e');
+      }
+    }
+  }
 }
