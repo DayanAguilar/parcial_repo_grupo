@@ -52,8 +52,17 @@ class _MoviesBuilderState extends State<MoviesBuilder> {
                       state.cartOMovies), //cambiar funcion
                 ),
                 ElevatedButton(
-                    onPressed: null, child: const Text("Comprar entradas"))
+                    onPressed: () {
+                      context.read<MoviesCubit>().purchaseConfirmation();
+                    },
+                    child: const Text("Comprar entradas"))
               ],
+            );
+          } else if (state is MoviesConfirmation) {
+            return Center(
+              child: Text(
+                'Peliculas compradas correctamente por ${state.price}',
+              ),
             );
           }
 
@@ -121,6 +130,7 @@ class _MoviesBuilderState extends State<MoviesBuilder> {
   }
 
   Widget _buildListTicketConfirmation(dynamic cartOMovies) {
+    print(cartOMovies);
     return ListView.builder(
       itemCount: cartOMovies.length,
       itemBuilder: (context, index) {
@@ -133,7 +143,16 @@ class _MoviesBuilderState extends State<MoviesBuilder> {
             width: 100,
             fit: BoxFit.cover,
           ),
-          trailing: _buildTicketSelector(context, selectedMovie),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                  margin: EdgeInsets.only(right: 24.0),
+                  child: Text("${(selectedMovie['price'] ?? 0)} Bs")),
+              _buildTicketSelector(context, selectedMovie),
+              // Your additional text
+            ],
+          ),
         );
       },
     );

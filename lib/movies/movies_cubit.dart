@@ -49,11 +49,27 @@ class MoviesCubit extends Cubit<MoviesState> {
           return {
             ...selectedMovie,
             'tickets': tickets,
+            'price': tickets * 20,
           };
         }
         return selectedMovie;
       }).toList();
       emit(currentState.copyWith(cartOMovies: updatedSelectedMovies));
+    }
+  }
+
+  void purchaseConfirmation() {
+    final currentState = state;
+    if (currentState is MoviesCart) {
+      final totalAmount = currentState.cartOMovies.fold<num>(
+        0,
+        (previousValue, movie) => previousValue + (movie['price'] ?? 0),
+      );
+      try {
+        emit(MoviesConfirmation(price: totalAmount.toString()));
+      } catch (e) {
+        print('Error confirming purchase: $e');
+      }
     }
   }
 }
