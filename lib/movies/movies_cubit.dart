@@ -21,7 +21,8 @@ class MoviesCubit extends Cubit<MoviesState> {
   void toggleSelectedMovie(dynamic movie) {
     final currentState = state;
     if (currentState is MoviesLoaded) {
-      List<dynamic> updatedSelectedMovies = List.from(currentState.selectedMovies);
+      List<dynamic> updatedSelectedMovies =
+          List.from(currentState.selectedMovies);
       if (updatedSelectedMovies.contains(movie)) {
         updatedSelectedMovies.remove(movie);
       } else {
@@ -31,17 +32,19 @@ class MoviesCubit extends Cubit<MoviesState> {
     }
   }
 
-   void moviesToCart() {
+  void moviesToCart() {
     final currentState = state;
-    if (currentState is MoviesLoaded && currentState.selectedMovies.isNotEmpty) {
+    if (currentState is MoviesLoaded &&
+        currentState.selectedMovies.isNotEmpty) {
       emit(MoviesCart(cartOMovies: currentState.selectedMovies));
     }
   }
 
   void updateSelectedMovieTickets(dynamic movie, int tickets) {
     final currentState = state;
-    if (currentState is MoviesLoaded) {
-      final updatedSelectedMovies = currentState.selectedMovies.map((selectedMovie) {
+    if (currentState is MoviesCart) {
+      final updatedSelectedMovies =
+          currentState.cartOMovies.map((selectedMovie) {
         if (selectedMovie['title'] == movie['title']) {
           return {
             ...selectedMovie,
@@ -50,8 +53,7 @@ class MoviesCubit extends Cubit<MoviesState> {
         }
         return selectedMovie;
       }).toList();
-      emit(currentState.copyWith(selectedMovies: updatedSelectedMovies));
+      emit(currentState.copyWith(cartOMovies: updatedSelectedMovies));
     }
   }
-
 }

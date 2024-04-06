@@ -3,9 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movies/movies/movies_cubit.dart';
 import 'package:movies/movies/movies_state.dart';
 
-class MoviesBuilder extends StatelessWidget {
+class MoviesBuilder extends StatefulWidget {
   const MoviesBuilder({super.key});
 
+  @override
+  State<MoviesBuilder> createState() => _MoviesBuilderState();
+}
+
+class _MoviesBuilderState extends State<MoviesBuilder> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,9 +31,13 @@ class MoviesBuilder extends StatelessWidget {
                 ),
                 if (state.selectedMovies.isNotEmpty)
                   Expanded(
-                    child: _buildSelectedMoviesListView(
-                        context, state.selectedMovies),
+                    child: _buildSelectedMoviesListView(state.selectedMovies),
                   ),
+                ElevatedButton(
+                    onPressed: () {
+                      context.read<MoviesCubit>().moviesToCart();
+                    },
+                    child: const Text("Añadir al carrito"))
               ],
             );
           } else if (state is MoviesFailed) {
@@ -39,21 +48,17 @@ class MoviesBuilder extends StatelessWidget {
             return Column(
               children: [
                 Expanded(
-                  child:
-                      _buildSelectedMoviesListView(context, state.cartOMovies),
+                  child: _buildListTicketConfirmation(
+                      state.cartOMovies), //cambiar funcion
                 ),
+                ElevatedButton(
+                    onPressed: null, child: const Text("Comprar entradas"))
               ],
             );
           }
+
           return Container();
         },
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          context.read<MoviesCubit>().moviesToCart();
-        },
-        label: const Text("Aniadir al carrito"),
-        icon: const Icon(Icons.add),
       ),
     );
   }
@@ -79,11 +84,47 @@ class MoviesBuilder extends StatelessWidget {
     );
   }
 
-  Widget _buildSelectedMoviesListView(BuildContext context, List<dynamic> selectedMovies) {
+  Widget _buildSelectedMoviesListView(List<dynamic> selectedMovies) {
+    return Column(
+      children: [
+        Container(
+          child: const Text("Peliculas seleccionadas"),
+          padding: EdgeInsets.all(16.0),
+        ),
+        Expanded(
+          child: ListView.builder(
+            itemCount: selectedMovies.length,
+            itemBuilder: (context, index) {
+              final selectedMovie = selectedMovies[index];
+              return ListTile(
+                title: Text(selectedMovie['title']),
+                subtitle: Text(selectedMovie['overview']),
+                leading: Image.network(
+                  'https://image.tmdb.org/t/p/w500${selectedMovie['poster_path']}',
+                  width: 100,
+                  fit: BoxFit.cover,
+                ),
+                trailing: IconButton(
+                  icon: Icon(Icons.delete),
+                  onPressed: () {
+                    setState(() {
+                      selectedMovies.removeAt(index);
+                    });
+                  },
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildListTicketConfirmation(dynamic cartOMovies) {
     return ListView.builder(
-      itemCount: selectedMovies.length,
+      itemCount: cartOMovies.length,
       itemBuilder: (context, index) {
-        final selectedMovie = selectedMovies[index];
+        final selectedMovie = cartOMovies[index];
         return ListTile(
           title: Text(selectedMovie['title']),
           subtitle: Text(selectedMovie['overview']),
@@ -99,68 +140,78 @@ class MoviesBuilder extends StatelessWidget {
   }
 
   Widget _buildTicketSelector(BuildContext context, dynamic selectedMovie) {
-  return ElevatedButton(
-    onPressed: () {
-      _showTicketInputDialog(context, selectedMovie, context.read<MoviesCubit>());
-    },
-    child: Text('Cantidad de Tickets'),
-  );
-}
+    return ElevatedButton(
+      onPressed: () {
+        print(selectedMovie);
+        _showTicketInputDialog(
+            context, selectedMovie, context.read<MoviesCubit>());
+      },
+      child: Text('Cantidad de Tickets'),
+    );
+  }
 
-void _showTicketInputDialog(BuildContext context, dynamic selectedMovie, MoviesCubit cubit) {
-  int selectedTickets = selectedMovie['tickets'] ?? 1; // Default value
+  void _showTicketInputDialog(
+      BuildContext context, dynamic selectedMovie, MoviesCubit cubit) {
+    int selectedTickets = selectedMovie['tickets'] ?? 1; // Default value
 
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Cantidad de Tickets'),
-        content: Container(
-          width: double.maxFinite,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Seleciona la cantidad de tickets para ${selectedMovie['title']}'),
-              const SizedBox(height: 10),
-              DropdownButton<int>(
-                value: selectedTickets,
-                onChanged: (int? newValue) {
-                  if (newValue != null) {
-                    selectedTickets = newValue;
-                  }
-                },
-                items: List.generate(10, (index) {
-                  return DropdownMenuItem<int>(
-                    value: index + 1,
-                    child: Text('${index + 1}'),
-                  );
-                }),
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Cantidad de Tickets'),
+              content: Container(
+                width: double.maxFinite,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                        'Selecciona la cantidad de tickets para ${selectedMovie['title']}'),
+                    const SizedBox(height: 10),
+                    DropdownButton<int>(
+                      value: selectedTickets,
+                      onChanged: (int? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            selectedTickets = newValue;
+                          });
+                        }
+                      },
+                      items: List.generate(10, (index) {
+                        return DropdownMenuItem<int>(
+                          value: index + 1,
+                          child: Text('${index + 1}'),
+                        );
+                      }),
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              cubit.updateSelectedMovieTickets(selectedMovie, selectedTickets);
-              print(selectedTickets);
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                content: Text('Se actualizo la cantidad de tickets'),
-              ));
-              Navigator.of(context).pop();
-            },
-            child: const Text('OK'),
-          ),
-        ],
-      );
-    },
-  );
-}
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    cubit.updateSelectedMovieTickets(
+                        selectedMovie, selectedTickets);
 
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('Se actualizo la cantidad de tickets'),
+                    ));
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 }
