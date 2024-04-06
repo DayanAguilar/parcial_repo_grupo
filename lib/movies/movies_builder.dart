@@ -61,7 +61,7 @@ class _MoviesBuilderState extends State<MoviesBuilder> {
           } else if (state is MoviesConfirmation) {
             return Center(
               child: Text(
-                'Peliculas compradas correctamente por ${state.price}',
+                'Peliculas compradas correctamente por ${state.price} Bs.',
               ),
             );
           }
@@ -130,7 +130,6 @@ class _MoviesBuilderState extends State<MoviesBuilder> {
   }
 
   Widget _buildListTicketConfirmation(dynamic cartOMovies) {
-    print(cartOMovies);
     return ListView.builder(
       itemCount: cartOMovies.length,
       itemBuilder: (context, index) {
@@ -161,7 +160,6 @@ class _MoviesBuilderState extends State<MoviesBuilder> {
   Widget _buildTicketSelector(BuildContext context, dynamic selectedMovie) {
     return ElevatedButton(
       onPressed: () {
-        print(selectedMovie);
         _showTicketInputDialog(
             context, selectedMovie, context.read<MoviesCubit>());
       },
