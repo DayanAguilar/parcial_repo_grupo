@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movies/movies/movies_cubit.dart';
 import 'package:movies/movies/movies_state.dart';
 
+
 class MoviesBuilder extends StatefulWidget {
   const MoviesBuilder({super.key});
 
